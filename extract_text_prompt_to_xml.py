@@ -45,11 +45,6 @@ def build_xml(data: dict[str, str]) -> ET.Element:
         if key in data["parameters"]:
             ET.SubElement(img_params, key.replace(" ", "-")).text = data["parameters"][key]
     
-    # Resources
-    resources = ET.SubElement(root, "resources")
-    base_model = ET.SubElement(resources, "base-model")
-    ET.SubElement(base_model, "id").text = data["parameters"].get("basemodel", "Unknown")
-
     return root
 
 def save_xml(root: ET.Element, filename: str):
@@ -62,9 +57,9 @@ def save_xml(root: ET.Element, filename: str):
         file.write(pretty_xml)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="The civitai text prompt file to transform to xml")
-    parser.add_argument("text_prompt_path", type=str, help="The path to the file extracted from civitai when copying an image's prompt")
-    parser.add_argument("xml_prompt_path", type=str, help="The path to the file created for civitai")
+    parser = argparse.ArgumentParser(description="The CivitAI text prompt file to transform to XML")
+    parser.add_argument("text_prompt_path", type=str, help="The path to the file extracted from CivitAI when copying an image's prompt")
+    parser.add_argument("xml_prompt_path", type=str, help="The path to the file created for CivitAI")
     args = parser.parse_args()
     with open(args.text_prompt_path, "r", encoding="utf-8") as text_prompt_file:
         text_prompt = text_prompt_file.read()
