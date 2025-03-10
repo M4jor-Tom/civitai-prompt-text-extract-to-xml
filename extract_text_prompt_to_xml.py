@@ -76,7 +76,7 @@ def build_xml(data: dict[str, str]) -> ET.Element:
     # Image parameters
     img_params = ET.SubElement(root, "image-parameters")
     for key in ["width", "height", "steps", "sampler", "cfg scale", "seed", "clip skip"]:
-        if key in data["parameters"]:
+        if key in data["parameters"] and not (key == "seed" and data["parameters"][key] == "undefined"):
             ET.SubElement(img_params, key.replace(" ", "-")).text = data["parameters"][key]
     
     return root
