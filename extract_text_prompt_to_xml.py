@@ -16,14 +16,20 @@ def parse_prompt(text: str) -> dict[str, str]:
     sections = {}
 
     # Extract positive and negative prompts
-    if "Negative prompt:" not in text or "Steps:" not in text:
-        raise ValueError("Invalid prompt format: Missing required sections.")
+    if "Steps:" not in text:
+        raise ValueError("Steps missing in text prompt")
 
-    pos_prompt, rest = text.split("Negative prompt:", 1)
-    sections["positive-prompt"] = pos_prompt.strip()
-
-    neg_prompt, param_section = rest.split("Steps:", 1)
-    sections["negative-prompt"] = neg_prompt.strip()
+    pos_prompt = ""
+    neg_prompt = ""
+    param_section = ""
+    if "Negative prompt:" in text:
+        pos_prompt, rest = text.split("Negative prompt:", 1)
+        sections["positive-prompt"] = pos_prompt.strip()
+        neg_prompt, param_section = rest.split("Steps:", 1)
+        sections["negative-prompt"] = neg_prompt.strip()
+    else:
+        pos_prompt, param_section = text.split("Steps:", 1)
+        sections["positive-prompt"] = pos_prompt.strip()
 
     # Ensure "Steps" is captured first
     param_section = param_section.strip()
@@ -64,7 +70,8 @@ def build_xml(data: dict[str, str]) -> ET.Element:
     # Prompt details
     prompt_details = ET.SubElement(root, "prompt-details")
     ET.SubElement(prompt_details, "positive-prompt").text = data["positive-prompt"]
-    ET.SubElement(prompt_details, "negative-prompt").text = data["negative-prompt"]
+    if "negative-prompt" in data:
+        ET.SubElement(prompt_details, "negative-prompt").text = data["negative-prompt"]
 
     # Image parameters
     img_params = ET.SubElement(root, "image-parameters")
@@ -90,6 +97,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     with open(args.text_prompt_path, "r", encoding="utf-8") as text_prompt_file:
+        print("Converting " + args.text_prompt_path + " to " + args.xml_prompt_path)
         text_prompt = text_prompt_file.read()
         parsed_data = parse_prompt(text_prompt)
         xml_root = build_xml(parsed_data)
